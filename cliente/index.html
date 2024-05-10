@@ -1,13 +1,60 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Short Polling</title>
 </head>
-<body>
 
+<body>
+<h2>Notificaciones</h2>
+<ul id="notificaciones">
+</ul>
+
+<script>
+    const listaNotificaciones = document.getElementById("notificaciones");
+    let idLastNoti = 0;
+
+    function mostrarNotificaciones(notificaciones) {
+        for (let notificacion of notificaciones) {
+            const li = document.createElement("li");
+            li.innerText = notificacion.cuerpo;
+
+            listaNotificaciones.appendChild(li);
+        }
+    }
+
+    async function obtenerNotificaciones() {
+        const resp = await fetch("http://localhost:3001/notificaciones");
+        const json = await resp.json();
+        const notificaciones = json.notificaciones;
+
+        if (notificaciones.length > 0) {
+            idLastNoti = notificaciones[notificaciones.length - 1].id;
+            mostrarNotificaciones(notificaciones);
+        }
+
+        obtenerNotificacionesNuevas(3000);
+    }
+
+    async function obtenerNotificacionesNuevas(intervalo) {
+        const resp = await fetch("http://localhost:3001/notificaciones-nuevas?idLastNoti=" + idLastNoti);
+        const json = await resp.json();
+        const notificaciones = json.notificaciones;
+
+        if (notificaciones.length > 0) {
+            idLastNoti = notificaciones[notificaciones.length - 1].id;
+            mostrarNotificaciones(notificaciones);
+        }
+
+        setTimeout(() => {
+            obtenerNotificacionesNuevas(intervalo)
+        }, intervalo);
+    }
+
+    obtenerNotificaciones();
+</script>
 </body>
+
 </html>
