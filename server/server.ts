@@ -6,8 +6,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Resto de tu código...
-
 const notificaciones = [
     {
         id: 1,
